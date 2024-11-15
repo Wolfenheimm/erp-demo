@@ -218,7 +218,7 @@ function App() {
           {/* Person Animation */}
           <motion.div
             className="person"
-            animate={isPersonMoving ? { x: stagingWidth - 225 } : { x: - 180 }}
+            animate={isPersonMoving ? { x: stagingWidth - 170 } : { x: -100 }}
             transition={{ duration: 3, ease: "easeInOut" }}
           >
             🧍‍♂️
