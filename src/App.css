@@ -48,6 +48,7 @@ body {
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   padding: 20px;
+  position: relative; /* For truck animation */
 }
 
 .section {
@@ -64,17 +65,25 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 10px;
+  padding-bottom: 30px;
+  overflow-y: auto; /* Enable vertical scrolling */
+  max-height: 300px; /* Limit the height of the warehouse items */
+  padding: 10px; /* Add padding for better visibility */
+  box-sizing: border-box; /* Include padding in the width/height */
+  margin-bottom: 50px;
 }
 
 .item {
-  background: #007bff;
+  background: #b30a01;
   color: white;
   padding: 10px;
   border-radius: 4px;
-  font-size: 14px;
-  text-align: center;
-  min-width: 50px;
+  font-size: 12px;
+  font-style: bold;
+  text-align: left;
+  width: 100%;
+  margin-left: 20px;
+  border: 1px solid #ddd; /* Optional: Add a border for better visibility */
 }
 
 button {
@@ -94,7 +103,7 @@ button:hover {
 
 .truck {
   position: absolute;
-  bottom: 0;
+  bottom: 20px;
   left: 0;
   font-size: 40px;
 }

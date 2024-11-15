@@ -11,7 +11,7 @@ function Truck({ onDeliver }) {
         onDeliver(); // Deliver items to the warehouse
         setIsMoving(false); // Reset truck position
       }, 3000); // Time for the truck to reach the warehouse
-    }, 10000); // Truck comes every 10 seconds
+    }, 15000); // Truck comes every 15 seconds
 
     return () => clearInterval(interval); // Cleanup on unmount
   }, [onDeliver]);
