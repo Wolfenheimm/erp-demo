@@ -59,6 +59,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-left: 50px;
 }
 
 .items {
@@ -71,6 +72,7 @@ body {
   padding: 10px; /* Add padding for better visibility */
   box-sizing: border-box; /* Include padding in the width/height */
   margin-bottom: 50px;
+  width: 100%;
 }
 
 .item {
@@ -91,14 +93,25 @@ button {
   color: white;
   border: none;
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: 12px;
   border-radius: 4px;
   cursor: pointer;
   margin-top: 10px;
+  margin-left: 40px;
 }
 
 button:hover {
   background: #218838;
+}
+
+.section.warehouse {
+  position: relative; /* Makes the warehouse a relative container */
+  width: 80%;
+  height: 400px;
+  border: 2px solid #ccc;
+  padding: 20px;
+  margin-bottom: 20px;
+  overflow: hidden; /* Prevents the truck from overflowing */
 }
 
 .truck {
@@ -106,4 +119,59 @@ button:hover {
   bottom: 20px;
   left: 0;
   font-size: 40px;
+}
+
+.work-order {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+  margin-left: 30px;
+  text-align: center;
+  width: 100%;
+  display: flex; /* Enable Flexbox */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+}
+
+.h2 {
+  margin-left: 20px;
+}
+
+.work-order-card {
+  background: #134200;
+  color: white;
+  padding: 10px;
+  margin-left: 20px;
+  border-radius: 8px;
+  width: 80%; /* Adjust width as needed */
+  text-align: center;
+}
+
+.create-work-order-button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-style: bold;
+  border-radius: 4px;
+  width: 18%;
+  cursor: pointer;
+}
+
+.create-work-order-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.create-work-order-button:hover:not(:disabled) {
+  background: #218838;
+}
+
+.person {
+  position: absolute;
+  bottom: 10px;
+  font-size: 30px;
 }
