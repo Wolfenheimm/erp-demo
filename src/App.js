@@ -221,7 +221,7 @@ function App() {
             animate={isPersonMoving ? { x: stagingWidth - 170 } : { x: -100 }}
             transition={{ duration: 3, ease: "easeInOut" }}
           >
-            🧍‍♂️
+          🧍‍♂️
           </motion.div>
 
           {/* Move Materials Button */}
