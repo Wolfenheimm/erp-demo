@@ -64,10 +64,10 @@ function App() {
       recipe: {
         inserted_by: "bob",
         sku: "123123123",
-        recipe_id: Math.floor(Math.random() * 1000),
+        recipe_id: "123",
         required_components: [
-          { component_sku: "COMP-001", quantity: 10 },
-          { component_sku: "COMP-002", quantity: 5 },
+          { component_sku: "123123125", quantity: 5 },
+          { component_sku: "123123123", quantity: 5 },
         ],
         required_equipment: "Mixer",
         output_quantity: 50,
@@ -86,12 +86,17 @@ function App() {
   };
 
   // Handle staging material collection
-  const moveToStaging = () => {
+  const moveToStaging = async () => {
     if (warehouse.length > 0) {
       const [item, ...rest] = warehouse;
       setWarehouse(rest); // Remove item from warehouse
       setStaging((prev) => [...prev, item]); // Add item to staging
-
+      try {
+        const senderSeed = "//Alice"; // Replace with your seed/mnemonic
+        await callPrepareStagingArea(senderSeed, newWorkOrder);
+      } catch (error) {
+        console.error("Blockchain transaction failed:", error);
+      } 
       // Animate person movement
       setIsPersonMoving(true);
       setTimeout(() => setIsPersonMoving(false), 3000);
