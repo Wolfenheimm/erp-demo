@@ -1,7 +1,22 @@
 import React, { useState, useEffect, useCallback, useRef} from "react";
 import { motion } from "framer-motion";
-import { callInventoryInsertion, callCreateWorkOrder } from "./polkadot";
+import { callInventoryInsertion, callCreateWorkOrder, callPrepareStagingArea } from "./polkadot";
 import "./App.css";
+
+const newWorkOrder = {
+  work_order_number: `${Math.floor(Math.random() * 100000)}`,
+  recipe: {
+    inserted_by: "bob",
+    sku: "123123128",
+    recipe_id: "123",
+    required_components: [
+      { sku: "123123125", qty: 5 },
+      { sku: "123123123", qty: 5 },
+    ],
+    required_equipment: "Mixer",
+    output_quantity: 50,
+  },
+};
 
 const ITEM_TEMPLATES = [
   {
@@ -58,21 +73,6 @@ function App() {
   // Handle work order creation
   const handleCreateWorkOrder = async () => {
     setIsCreatingWorkOrder(true);
-
-    const newWorkOrder = {
-      work_order_number: `${Math.floor(Math.random() * 100000)}`,
-      recipe: {
-        inserted_by: "bob",
-        sku: "123123123",
-        recipe_id: "123",
-        required_components: [
-          { component_sku: "123123125", quantity: 5 },
-          { component_sku: "123123123", quantity: 5 },
-        ],
-        required_equipment: "Mixer",
-        output_quantity: 50,
-      },
-    };
 
     try {
       const senderSeed = "//Alice"; // Replace with your seed/mnemonic
