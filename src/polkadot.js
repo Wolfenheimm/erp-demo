@@ -112,3 +112,23 @@ export async function callPrepareStagingArea(senderSeed, workOrder) {
       });
   });
 }
+
+export async function queryInventoryByLocation() {
+  const api = await connectToBlockchain();
+
+  try {
+    // Query the InventoryLocale storage for the given location
+    const inventory = await api.query.inventory.inventoryLocale("Staging");
+
+    if (inventory.isNone) {
+      console.log(`No inventory found for Staging`);
+      return null;
+    }
+
+    // Convert the BoundedBTreeMap to a human-readable format
+    return inventory.toHuman();
+  } catch (error) {
+    console.error("Error querying inventory:", error);
+    throw error;
+  }
+}

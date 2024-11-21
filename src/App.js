@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef} from "react";
 import { motion } from "framer-motion";
-import { callInventoryInsertion, callCreateWorkOrder, callPrepareStagingArea } from "./polkadot";
+import { callInventoryInsertion, callCreateWorkOrder, callPrepareStagingArea, queryInventoryByLocation } from "./polkadot";
 import "./App.css";
 
 const newWorkOrder = {
@@ -85,21 +85,50 @@ function App() {
     }
   };
 
-  // Handle staging material collection
   const moveToStaging = async () => {
-    if (warehouse.length > 0) {
-      const [item, ...rest] = warehouse;
-      setWarehouse(rest); // Remove item from warehouse
-      setStaging((prev) => [...prev, item]); // Add item to staging
-      try {
-        const senderSeed = "//Alice"; // Replace with your seed/mnemonic
-        await callPrepareStagingArea(senderSeed, newWorkOrder);
-      } catch (error) {
-        console.error("Blockchain transaction failed:", error);
-      } 
-      // Animate person movement
+    try {
+      // Query the staging inventory from the blockchain
+      const senderSeed = "//Alice"; // Replace with your seed/mnemonic
+      await callPrepareStagingArea(senderSeed, newWorkOrder);
+      
+      const stagingInventory = await queryInventoryByLocation();
+      console.log("Raw inventory data:", stagingInventory);
+  
+      if (!stagingInventory) {
+        console.log("No inventory found in Staging.");
+        setStaging([]); // Clear the staging if no inventory is found
+        return;
+      }
+  
+    // Transform the blockchain data into the format needed for your UI
+    const items = Object.keys(stagingInventory).map((serialNumber) => {
+      const rawItem = stagingInventory[serialNumber];
+
+      return {
+        serial_number: parseInt(serialNumber, 10), // Ensure serial_number is a number
+        moved_by: rawItem.moved_by,
+        sku: rawItem.sku,
+        lot_number: rawItem.lotNumber,
+        abc_code: rawItem.abc_code,
+        inventory_type: rawItem.inventory_type,
+        product_type: rawItem.product_type,
+        qty: rawItem.qty,
+        weight: rawItem.weight,
+        shelf_life: rawItem.shelf_life,
+        cycle_count: rawItem.cycle_count,
+        created_at: rawItem.created_at,
+        location: rawItem.location,
+      };
+    });
+  
+      // Update the staging state with the fetched items
+      setStaging(items);
+  
+      // Optional: Animate person movement
       setIsPersonMoving(true);
       setTimeout(() => setIsPersonMoving(false), 3000);
+    } catch (error) {
+      console.error("Error fetching staging inventory:", error);
     }
   };
 
@@ -208,17 +237,18 @@ function App() {
       <div ref={stagingRef} className="section staging">
         <h2>Staging Area</h2>
         <div className="items">
-          {staging.map((item, index) => (
-            <motion.div
-              key={index}
-              className="item"
-              animate={{ scale: 1.2 }}
-              transition={{ duration: 0.5 }}
-            >
-              <p>SKU: {item.sku}</p>
-              <p>Lot: {item.lot_number}</p>
-            </motion.div>
-          ))}
+        {staging.map((item, index) => (
+          <motion.div
+            key={item.serial_number || index}
+            className="item"
+            animate={{ scale: 1.2 }}
+            transition={{ duration: 0.5 }}
+          >
+            <p>SKU: {item.sku}</p>
+            <p>Lot: {item.lot_number}</p>
+            <p>Qty: {item.qty}</p>
+          </motion.div>
+        ))}
         </div>
           {/* Person Animation */}
           <motion.div
