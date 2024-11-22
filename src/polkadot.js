@@ -113,6 +113,40 @@ export async function callPrepareStagingArea(senderSeed, workOrder) {
   });
 }
 
+export async function callAssembleProduct(senderSeed, newWorkOrder, serialNumber, stagingLocation) {
+  const api = await connectToBlockchain();
+
+  const keyring = new Keyring({ type: 'sr25519' });
+  const sender = keyring.addFromUri(senderSeed);
+
+  // Prepare the extrinsic
+  const extrinsic = api.tx.assembly.assembleProduct(newWorkOrder, serialNumber, stagingLocation);
+
+  // Sign and send the transaction
+  return new Promise((resolve, reject) => {
+    extrinsic
+      .signAndSend(sender, { nonce: -1 }, ({ status, events, dispatchError }) => {
+        if (status.isInBlock) {
+          console.log(`Transaction included at blockHash ${status.asInBlock}`);
+          resolve(status.asInBlock.toHex());
+        } else if (status.isFinalized) {
+          console.log(`Transaction finalized at blockHash ${status.asFinalized}`);
+        } else if (dispatchError) {
+          if (dispatchError.isModule) {
+            const decoded = api.registry.findMetaError(dispatchError.asModule);
+            const { docs, name, section } = decoded;
+            reject(new Error(`${section}.${name}: ${docs.join(' ')}`));
+          } else {
+            reject(dispatchError.toString());
+          }
+        }
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
 export async function queryInventoryByLocation() {
   const api = await connectToBlockchain();
 

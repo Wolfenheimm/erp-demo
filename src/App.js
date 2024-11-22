@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef} from "react";
 import { motion } from "framer-motion";
-import { callInventoryInsertion, callCreateWorkOrder, callPrepareStagingArea, queryInventoryByLocation } from "./polkadot";
+import { callInventoryInsertion, callCreateWorkOrder, callPrepareStagingArea, callAssembleProduct, queryInventoryByLocation } from "./polkadot";
 import "./App.css";
 
 const newWorkOrder = {
@@ -22,18 +22,6 @@ const ITEM_TEMPLATES = [
   {
     moved_by: "bob",
     sku: "123123123",
-    abc_code: "A",
-    inventory_type: "RawMaterial",
-    product_type: "RawMaterials",
-    qty: 10,
-    weight: 5,
-    shelf_life: 365,
-    cycle_count: 0,
-    location: "Warehouse",
-  },
-  {
-    moved_by: "bob",
-    sku: "123123124",
     abc_code: "A",
     inventory_type: "RawMaterial",
     product_type: "RawMaterials",
@@ -69,6 +57,9 @@ function App() {
   const [stagingWidth, setStagingWidth] = useState(0);
   const [staging, setStaging] = useState([]);
   const [isPersonMoving, setIsPersonMoving] = useState(false);
+  const [assemblyItems, setAssemblyItems] = useState([]); // Items for assembly
+  const [isFactoryMoving, setIsFactoryMoving] = useState(false); // Animation for factory
+  const assemblyRef = useRef(null);
 
   // Handle work order creation
   const handleCreateWorkOrder = async () => {
@@ -177,6 +168,24 @@ function App() {
     return () => clearInterval(interval);
   }, [handleDelivery]);
 
+  const handleAssembleItems = async () => {
+    try {
+      const senderSeed = "//Alice"; // Replace with your seed/mnemonic
+      const stagingLocation = "Staging";
+      const serialNumber = Math.floor(Math.random() * 100000); // Example serial number
+
+      await callAssembleProduct(senderSeed, newWorkOrder, serialNumber, stagingLocation);
+
+      setAssemblyItems([...staging]); // Move staging items to assembly
+      setStaging([]); // Clear staging
+      setIsFactoryMoving(true);
+
+      setTimeout(() => setIsFactoryMoving(false), 3000); // End animation
+    } catch (error) {
+      console.error("Error assembling items:", error);
+    }
+  };
+
   return (
     <div>
       {/* Work Order Section */}
@@ -262,6 +271,46 @@ function App() {
           {/* Move Materials Button */}
           <button onClick={moveToStaging}>Move to Staging</button>
       </div>
+
+      {/* Assembly Area */}
+      <div ref={assemblyRef} className="section assembly">
+        <h2>Assembly Area</h2>
+        {workOrder && (
+          <motion.div
+            className="work-order-card"
+            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.5 }}
+          >
+            <p><strong>Order Number:</strong> {workOrder.work_order_number}</p>
+            <p><strong>SKU:</strong> {workOrder.recipe.sku}</p>
+            <p><strong>Recipe ID:</strong> {workOrder.recipe.recipe_id}</p>
+          </motion.div>
+        )}
+        <div className="items">
+          {assemblyItems.map((item, index) => (
+            <motion.div
+              key={item.serial_number || index}
+              className="item"
+              animate={{ scale: 1.2 }}
+              transition={{ duration: 0.5 }}
+            >
+              <p>SKU: {item.sku}</p>
+              <p>Lot: {item.lot_number}</p>
+              <p>Qty: {item.qty}</p>
+            </motion.div>
+          ))}
+        </div>
+        <motion.div
+          className="factory"
+          animate={isFactoryMoving ? { x: 200 } : { x: 0 }}
+          transition={{ duration: 3, ease: "easeInOut" }}
+        >
+          🏭
+        </motion.div>
+        <button onClick={handleAssembleItems}>Assemble Items</button>
+      </div>
+
     </div>    
   </div>
   );
