@@ -25,7 +25,7 @@ const ITEM_TEMPLATES = [
     abc_code: "A",
     inventory_type: "RawMaterial",
     product_type: "RawMaterials",
-    qty: 10,
+    qty: 3,
     weight: 5,
     shelf_life: 365,
     cycle_count: 0,
@@ -37,7 +37,7 @@ const ITEM_TEMPLATES = [
     abc_code: "A",
     inventory_type: "RawMaterial",
     product_type: "RawMaterials",
-    qty: 10,
+    qty: 3,
     weight: 5,
     shelf_life: 365,
     cycle_count: 0,
@@ -76,12 +76,18 @@ function App() {
     }
   };
 
-  const moveToStaging = async () => {
+  const prepStaging = async () => {
     try {
-      // Query the staging inventory from the blockchain
       const senderSeed = "//Alice"; // Replace with your seed/mnemonic
       await callPrepareStagingArea(senderSeed, newWorkOrder);
-      
+      getStaging();
+    } catch (error) {
+      console.error("Error preparing staging area:", error);
+    }
+  };
+
+  const getStaging = async () => {
+    try {
       const stagingInventory = await queryInventoryByLocation();
       console.log("Raw inventory data:", stagingInventory);
   
@@ -176,8 +182,9 @@ function App() {
 
       await callAssembleProduct(senderSeed, newWorkOrder, serialNumber, stagingLocation);
 
-      setAssemblyItems([...staging]); // Move staging items to assembly
-      setStaging([]); // Clear staging
+      //setAssemblyItems([...staging]); // Move staging items to assembly
+      //setStaging([]); // Clear staging
+      getStaging(); // Fetch staging items
       setIsFactoryMoving(true);
 
       setTimeout(() => setIsFactoryMoving(false), 3000); // End animation
@@ -269,7 +276,7 @@ function App() {
           </motion.div>
 
           {/* Move Materials Button */}
-          <button onClick={moveToStaging}>Move to Staging</button>
+          <button onClick={prepStaging}>Move to Staging</button>
       </div>
 
       {/* Assembly Area */}
