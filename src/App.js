@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { callInventoryInsertion, callCreateWorkOrder, callPrepareStagingArea, callAssembleProduct, queryInventoryByLocation } from "./polkadot";
 import "./App.css";
 
+// Work Order template used when creating a new work order
 const newWorkOrder = {
   work_order_number: `${Math.floor(Math.random() * 100000)}`,
   recipe: {
@@ -18,6 +19,8 @@ const newWorkOrder = {
   },
 };
 
+// Basic Item template used for delivery
+// Logic randomly selects an item from this list on each delivery
 const ITEM_TEMPLATES = [
   {
     moved_by: "bob",
@@ -76,6 +79,7 @@ function App() {
     }
   };
 
+  // Prepare staging area
   const prepStaging = async () => {
     try {
       const senderSeed = "//Alice"; // Replace with your seed/mnemonic
@@ -86,6 +90,7 @@ function App() {
     }
   };
 
+  // Fetch staging inventory
   const getStaging = async () => {
     try {
       const stagingInventory = await queryInventoryByLocation();
@@ -121,7 +126,7 @@ function App() {
       // Update the staging state with the fetched items
       setStaging(items);
   
-      // Optional: Animate person movement
+      // Animate person movement in UI
       setIsPersonMoving(true);
       setTimeout(() => setIsPersonMoving(false), 3000);
     } catch (error) {
@@ -134,6 +139,7 @@ function App() {
     const randomIndex = Math.floor(Math.random() * ITEM_TEMPLATES.length);
     const template = ITEM_TEMPLATES[randomIndex];
 
+    // Complete the item with additional data
     const newItem = {
       ...template,
       lot_number: lotCounter,
@@ -142,7 +148,7 @@ function App() {
     };
 
     try {
-      const senderSeed = "//Alice"; // Replace with your seed/mnemonic
+      const senderSeed = "//Alice"; // Alice here is used to represent the company's seed/mnemonic
       await callInventoryInsertion(senderSeed, newItem);
 
       setWarehouse((prev) => [...prev, newItem]);
@@ -159,10 +165,12 @@ function App() {
       setWarehouseWidth(warehouseRef.current.offsetWidth);
     }
 
+    // Set the staging width if the ref is available
     if (stagingRef.current) {
       setStagingWidth(stagingRef.current.offsetWidth);
     }
 
+    // Apply the movement interval
     const interval = setInterval(() => {
       setIsTruckMoving(true);
       setTimeout(() => {
@@ -174,6 +182,7 @@ function App() {
     return () => clearInterval(interval);
   }, [handleDelivery]);
 
+  // Assemble items
   const handleAssembleItems = async () => {
     try {
       const senderSeed = "//Alice"; // Replace with your seed/mnemonic
@@ -182,8 +191,6 @@ function App() {
 
       await callAssembleProduct(senderSeed, newWorkOrder, serialNumber, stagingLocation);
 
-      //setAssemblyItems([...staging]); // Move staging items to assembly
-      //setStaging([]); // Clear staging
       getStaging(); // Fetch staging items
       setIsFactoryMoving(true);
 
